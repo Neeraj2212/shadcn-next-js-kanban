@@ -1,8 +1,8 @@
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
-import AddIcon from "@/icons/AddIcon";
 import { useContext } from "react";
 import ColumnWrapper from "./ColumnWrapper";
 import { Button } from "./ui/button";
+import { PlusCircledIcon } from "@radix-ui/react-icons";
 
 export default function KanbanBoard() {
   const { columns, addColumn } = useContext(KanbanBoardContext);
@@ -22,7 +22,7 @@ export default function KanbanBoard() {
             addColumn();
           }}
         >
-          <AddIcon />
+          <PlusCircledIcon className="h-6 w-6" />
           Add Column
         </Button>
       </div>

@@ -1,20 +1,9 @@
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
-import DeleteIcon from "@/icons/DeleteIcon";
 import { Column } from "@/types";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from "@radix-ui/react-dialog";
-import { Input } from "./ui/input";
 import { useContext, useState } from "react";
-import { Button } from "./ui/button";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
-import { Label } from "@radix-ui/react-label";
 import AddTaskDialog from "./AddTaskDialog";
+import { TrashIcon } from "@radix-ui/react-icons";
+import { TaskCard } from "./TaskCard";
 
 interface ColumnWrapperProps {
   column: Column;
@@ -23,10 +12,15 @@ interface ColumnWrapperProps {
 export default function ColumnWrapper(props: ColumnWrapperProps) {
   const { column } = props;
   const { taskIds } = column;
+  const { updateColumnTitle, deleteColumn, immutableColumnIds, tasks } =
+    useContext(KanbanBoardContext);
+
   const [editMode, setEditMode] = useState(false);
   const [columnTitle, setColumnTitle] = useState(column.title);
-  const { updateColumnTitle, deleteColumn, immutableColumnIds } =
-    useContext(KanbanBoardContext);
+
+  const columnTasks = column.taskIds.map((taskId) =>
+    tasks.find((task) => task.id === taskId)
+  );
 
   return (
     <div className="bg-secondary rounded-md flex flex-col max-h-[600px] h-[600px] w-[350px]">
@@ -72,7 +66,7 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
             }}
             className="stroke-gray-500 hover:bg-secondary rounded px-1 py-2"
           >
-            <DeleteIcon />
+            <TrashIcon className="h-6 w-6" />
           </button>
         ) : (
           <div></div>
@@ -80,7 +74,11 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
       </div>
 
       {/* Column tasks */}
-      <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto"></div>
+      <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
+        {columnTasks.map((task) => {
+          if (task) return <TaskCard key={task.id} task={task} />;
+        })}
+      </div>
 
       {/* Add task */}
       <AddTaskDialog columnId={column.id} />
