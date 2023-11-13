@@ -11,6 +11,7 @@ type KanbanBoardContextType = {
   updateColumnTitle: (columnId: string, newTitle: string) => void;
   addTask: (task: Task) => void;
   updateTask: (task: Task) => void;
+  deleteTask: (taskId: string) => void;
 };
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
@@ -22,6 +23,7 @@ export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   updateColumnTitle: () => {},
   addTask: () => {},
   updateTask: () => {},
+  deleteTask: () => {},
 });
 
 export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -156,6 +158,23 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     setTasks(newTasks);
   };
 
+  const deleteTask = (taskId: string) => {
+    const newTasks = tasks.filter((task) => task.id !== taskId);
+    // Get column of task and remove from task ids
+    const column = columns.find((column) => column.taskIds.includes(taskId));
+    if (column) {
+      const newColumn = {
+        ...column,
+        taskIds: column.taskIds.filter((id) => id !== taskId),
+      };
+      const newColumns = columns.map((column) =>
+        column.id === newColumn.id ? newColumn : column
+      );
+      setColumns(newColumns);
+    }
+    setTasks(newTasks);
+  };
+
   return (
     <KanbanBoardContext.Provider
       value={{
@@ -167,6 +186,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
         updateColumnTitle,
         addTask,
         updateTask,
+        deleteTask,
       }}
     >
       {children}

@@ -50,7 +50,7 @@ export default function EditTaskDialog({
     <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
       <DialogTrigger asChild>
         <Button className="p-0 pl-2 shadow-none stroke-gray-500 bg-transparent hover:bg-transparent h-auto">
-          <Pencil1Icon className="h-4 w-4" />
+          <Pencil1Icon className="h-5 w-5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
