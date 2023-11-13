@@ -43,7 +43,7 @@ export default function AddTaskDialog({ columnId }: { columnId: string }) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    addTask(task);
+    addTask(columnId, task);
     const newState = initialState;
     initialState.id = uuidv4();
     setTask(newState);

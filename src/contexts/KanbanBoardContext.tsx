@@ -1,4 +1,5 @@
 import { Column, Task } from "@/types";
+import { arrayMove } from "@dnd-kit/sortable";
 import { createContext, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -9,9 +10,15 @@ type KanbanBoardContextType = {
   addColumn: () => void;
   deleteColumn: (columnId: string) => void;
   updateColumnTitle: (columnId: string, newTitle: string) => void;
-  addTask: (task: Task) => void;
+  addTask: (columnId: string, task: Task) => void;
   updateTask: (task: Task) => void;
   deleteTask: (taskId: string) => void;
+  moveOverAnotherTask: (
+    activeColumnId: string,
+    overColumnId: string,
+    activeTaskId: string,
+    overTaskId: string
+  ) => void;
 };
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
@@ -24,6 +31,7 @@ export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   addTask: () => {},
   updateTask: () => {},
   deleteTask: () => {},
+  moveOverAnotherTask: () => {},
 });
 
 export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -137,10 +145,10 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Task functions
-  const addTask = (task: Task) => {
+  const addTask = (columnId: string, task: Task) => {
     setTasks([...tasks, task]);
     // Get column of task and update taskIds
-    const column = columns.find((column) => column.id === task.columnId);
+    const column = columns.find((column) => column.id === columnId);
     if (column) {
       const newColumn = {
         ...column,
@@ -175,6 +183,48 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     setTasks(newTasks);
   };
 
+  // Move task functions
+  const moveOverAnotherTask = (
+    activeColumnId: string,
+    overColumnId: string,
+    activeTaskId: string,
+    overTaskId: string
+  ) => {
+    // move tasks within same column
+
+    return setColumns((cols) => {
+      const activeColumn = cols.find((column) => column.id === activeColumnId);
+      const overColumn =
+        activeColumnId === overColumnId
+          ? activeColumn
+          : cols.find((column) => column.id === overColumnId);
+
+      const activeTaskIdx = activeColumn?.taskIds.indexOf(activeTaskId);
+      const overTaskIdx = overColumn?.taskIds.indexOf(overTaskId);
+      if (
+        activeColumn &&
+        activeTaskIdx != undefined &&
+        overTaskIdx != undefined &&
+        overColumn
+      ) {
+        if (activeColumnId === overColumnId) {
+          const newTaskIds = arrayMove(
+            activeColumn.taskIds,
+            activeTaskIdx,
+            overTaskIdx
+          );
+          return cols.map((column) =>
+            column.id === activeColumnId
+              ? { ...column, taskIds: newTaskIds }
+              : column
+          );
+        }
+      }
+
+      return cols;
+    });
+  };
+
   return (
     <KanbanBoardContext.Provider
       value={{
@@ -187,6 +237,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
         addTask,
         updateTask,
         deleteTask,
+        moveOverAnotherTask,
       }}
     >
       {children}

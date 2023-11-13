@@ -1,8 +1,9 @@
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
 import { Column } from "@/types";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { TrashIcon } from "@radix-ui/react-icons";
 import { useContext, useState } from "react";
 import AddTaskDialog from "./AddTaskDialog";
-import { TrashIcon } from "@radix-ui/react-icons";
 import { TaskCard } from "./TaskCard";
 
 interface ColumnWrapperProps {
@@ -11,7 +12,6 @@ interface ColumnWrapperProps {
 
 export default function ColumnWrapper(props: ColumnWrapperProps) {
   const { column } = props;
-  const { taskIds } = column;
   const { updateColumnTitle, deleteColumn, immutableColumnIds, tasks } =
     useContext(KanbanBoardContext);
 
@@ -21,6 +21,15 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
   const columnTasks = column.taskIds.map((taskId) =>
     tasks.find((task) => task.id === taskId)
   );
+
+  const { setDroppableNodeRef } = useSortable({
+    id: column.id.toString(),
+    disabled: editMode,
+    data: {
+      type: "column",
+      column: column,
+    },
+  });
 
   return (
     <div className="bg-secondary rounded-md flex flex-col max-h-[600px] h-[600px] w-[350px]">
@@ -37,7 +46,7 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
             className="flex justify-center items-center bg-secondary
             px-2 py-1 text-sm rounded-full text-primary"
           >
-            {taskIds.length}
+            {column.taskIds.length}
           </div>
           {!editMode && columnTitle}
           {editMode && (
@@ -74,10 +83,15 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
       </div>
 
       {/* Column tasks */}
-      <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">
-        {columnTasks.map((task) => {
-          if (task) return <TaskCard key={task.id} task={task} />;
-        })}
+      <div
+        className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto"
+        ref={setDroppableNodeRef}
+      >
+        <SortableContext items={column.taskIds}>
+          {columnTasks.map((task) => {
+            if (task) return <TaskCard key={task.id} task={task} />;
+          })}
+        </SortableContext>
       </div>
 
       {/* Add task */}

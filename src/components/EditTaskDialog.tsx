@@ -1,19 +1,20 @@
-import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "./ui/dialog";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
-import { Task } from "@/types";
-import { useContext, useMemo, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Textarea } from "./ui/textarea";
-import { DatePicker } from "./DatePicker";
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
+import { Task } from "@/types";
+import { Pencil1Icon } from "@radix-ui/react-icons";
+import { useContext, useState } from "react";
+import { DatePicker } from "./DatePicker";
+import { Button } from "./ui/button";
 import {
-  Pencil1Icon,
-  Pencil2Icon,
-  PlusCircledIcon,
-} from "@radix-ui/react-icons";
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 export default function EditTaskDialog({
   editableTask,
