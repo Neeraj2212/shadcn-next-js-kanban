@@ -35,6 +35,9 @@
       "@lib/*": [
         "./src/lib/*"
       ],
+      "@icons/*": [
+        "./src/icons/*"
+      ],
     }
   },
   "include": [
