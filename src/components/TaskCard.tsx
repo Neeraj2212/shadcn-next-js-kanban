@@ -10,12 +10,15 @@ import {
 } from "@/components/ui/card";
 import { Task } from "@/types";
 import { Badge } from "./ui/badge";
+import EditTaskDialog from "./EditTaskDialog";
 
 export function TaskCard({ task }: { task: Task }) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{task.title}</CardTitle>
+        <CardTitle className="flex justify-between">
+          {task.title} <EditTaskDialog editableTask={task} />
+        </CardTitle>
         <CardDescription>{task.description}</CardDescription>
       </CardHeader>
       {task.dueDate && (

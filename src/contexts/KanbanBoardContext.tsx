@@ -10,6 +10,7 @@ type KanbanBoardContextType = {
   deleteColumn: (columnId: string) => void;
   updateColumnTitle: (columnId: string, newTitle: string) => void;
   addTask: (task: Task) => void;
+  updateTask: (task: Task) => void;
 };
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
@@ -20,6 +21,7 @@ export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   deleteColumn: () => {},
   updateColumnTitle: () => {},
   addTask: () => {},
+  updateTask: () => {},
 });
 
 export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -30,17 +32,63 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
       {
         id: "b169e5ac-6c00-4269-b8c6-c30990d979fe",
         title: "To Do",
-        taskIds: [],
+        taskIds: [
+          "9e08c037-f369-41c7-8714-1545be1acd65",
+          "d3cfcfb5-94bf-44b7-91f7-e52467c722e3",
+        ],
       },
       {
         id: "5191cbfa-8814-4913-9cb4-f46f07770ac0",
         title: "In Progress",
-        taskIds: [],
+        taskIds: [
+          "b5126143-159a-4cb5-8f9d-985836c8d286",
+          "d3cfcfb5-94bf-44b7-91f7-e52467c722e2",
+          "9e08c037-f369-41c7-8714-1545be1acd64",
+        ],
       },
       {
         id: "33fa231c-8003-49f0-9f60-1794c34b1751",
         title: "Completed",
         taskIds: [],
+      },
+    ],
+    []
+  );
+
+  const initialTasks = useMemo<Task[]>(
+    () => [
+      {
+        id: "9e08c037-f369-41c7-8714-1545be1acd65",
+        title: "To Do 1",
+        description: "Description for To Do 1",
+        columnId: "b169e5ac-6c00-4269-b8c6-c30990d979fe",
+      },
+      {
+        id: "d3cfcfb5-94bf-44b7-91f7-e52467c722e3",
+        title: "To Do 2",
+        description: "Description for To Do 2",
+        columnId: "b169e5ac-6c00-4269-b8c6-c30990d979fe",
+      },
+      {
+        id: "b5126143-159a-4cb5-8f9d-985836c8d286",
+        title: "In Progress 1",
+        description: "Description for In Progress 1",
+        columnId: "5191cbfa-8814-4913-9cb4-f46f07770ac0",
+        dueDate: new Date("2024-09-01"),
+      },
+      {
+        id: "d3cfcfb5-94bf-44b7-91f7-e52467c722e2",
+        title: "Delayed In Progress 2",
+        description: "Description for In Progress 2",
+        columnId: "5191cbfa-8814-4913-9cb4-f46f07770ac0",
+        dueDate: new Date("2023-09-01"),
+      },
+      {
+        id: "9e08c037-f369-41c7-8714-1545be1acd64",
+        title: "Delayed In Progress 3",
+        description: "Description for In Progress 3",
+        columnId: "5191cbfa-8814-4913-9cb4-f46f07770ac0",
+        dueDate: new Date("2022-09-01"),
       },
     ],
     []
@@ -52,7 +100,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const [columns, setColumns] = useState(initialColumns);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
   // Column functions
   const addColumn = () => {
@@ -103,6 +151,11 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const updateTask = (task: Task) => {
+    const newTasks = tasks.map((t) => (t.id === task.id ? task : t));
+    setTasks(newTasks);
+  };
+
   return (
     <KanbanBoardContext.Provider
       value={{
@@ -113,6 +166,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
         deleteColumn,
         updateColumnTitle,
         addTask,
+        updateTask,
       }}
     >
       {children}
