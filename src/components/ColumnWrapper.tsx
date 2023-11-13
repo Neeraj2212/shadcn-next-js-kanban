@@ -1,7 +1,20 @@
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
 import DeleteIcon from "@/icons/DeleteIcon";
 import { Column } from "@/types";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@radix-ui/react-dialog";
+import { Input } from "./ui/input";
 import { useContext, useState } from "react";
+import { Button } from "./ui/button";
+import { DialogHeader, DialogFooter } from "./ui/dialog";
+import { Label } from "@radix-ui/react-label";
+import AddTaskDialog from "./AddTaskDialog";
 
 interface ColumnWrapperProps {
   column: Column;
@@ -65,6 +78,12 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
           <div></div>
         )}
       </div>
+
+      {/* Column tasks */}
+      <div className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto"></div>
+
+      {/* Add task */}
+      <AddTaskDialog columnId={column.id} />
     </div>
   );
 }
