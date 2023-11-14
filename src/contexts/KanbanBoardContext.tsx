@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 type KanbanBoardContextType = {
   columns: Column[];
+  setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
   addColumn: () => void;
   deleteColumn: (columnId: string) => void;
   updateColumnTitle: (columnId: string, newTitle: string) => void;
@@ -21,6 +22,7 @@ type KanbanBoardContextType = {
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   columns: [],
+  setColumns: () => {},
   addColumn: () => {},
   deleteColumn: () => {},
   updateColumnTitle: () => {},
@@ -154,6 +156,16 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const findValueOfItem = (id: string | undefined, type: string) => {
+    if (type === "column") {
+      return columns.find((column) => column.id === id);
+    } else if (type === "task") {
+      return columns.find((column) =>
+        column.tasks.find((task) => task.id === id)
+      );
+    }
+  };
+
   // Move task functions
   const moveOverAnotherTask = (
     activeColumnId: string,
@@ -168,6 +180,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     <KanbanBoardContext.Provider
       value={{
         columns,
+        setColumns,
         addColumn,
         deleteColumn,
         updateColumnTitle,

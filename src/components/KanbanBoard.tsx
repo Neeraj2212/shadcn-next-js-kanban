@@ -1,6 +1,6 @@
 "use client";
 import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import ColumnWrapper from "./ColumnWrapper";
 import { Button } from "./ui/button";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
@@ -11,52 +11,118 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { Task } from "@/types";
 import { TaskCard } from "./TaskCard";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export default function KanbanBoard() {
-  const { columns, addColumn, moveOverAnotherTask } =
-    useContext(KanbanBoardContext);
+  const { columns, addColumn, setColumns } = useContext(KanbanBoardContext);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const draggableTypes = useMemo(() => ["column", "task"], []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
+  const findColumnIdx = (id: UniqueIdentifier | undefined, type: string) => {
+    if (type === "column") {
+      return columns.findIndex((item) => item.id === id);
+    }
+    if (type === "task") {
+      return columns.findIndex((column) =>
+        column.tasks.some((item) => item.id === id)
+      );
+    }
+  };
+
+  function checkValidIdx(idx: number | undefined): idx is number {
+    return idx !== undefined && idx !== -1;
+  }
+
   const onDragStart = (event: DragStartEvent) => {
-    if (event.active.data.current?.type !== "task") return;
-    const { task } = event.active.data.current;
+    const data = event.active.data.current;
+    if (!data || !draggableTypes.includes(data.type)) return;
+    const { task } = data;
     setActiveTask(task);
   };
 
   const onDragEnd = (event: DragEndEvent) => {
     setActiveTask(null);
-    if (event.active.data.current?.type !== "task") return;
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
   };
 
   const onDragOver = (event: DragOverEvent) => {
-    if (!event.over) return;
     const { active, over } = event;
+    if (!active || !over) return;
     if (active.id === over.id) return;
 
-    const isOverColumn = over.data.current?.type === "column";
-    const activeColumnId = active.data.current?.task.columnId;
-    const overColumnId = isOverColumn
-      ? over.data.current?.column.id
-      : over.data.current?.task.columnId;
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
 
-    if (!isOverColumn) {
-      return moveOverAnotherTask(
-        activeColumnId,
-        overColumnId,
-        active.id.toString(),
-        over.id.toString()
+    if (activeType === "task" && overType === "task") {
+      const activeColumnIdx = findColumnIdx(active.id, activeType);
+      const overColumnIdx = findColumnIdx(over.id, overType);
+
+      if (!checkValidIdx(activeColumnIdx) || !checkValidIdx(overColumnIdx))
+        return;
+
+      const activeColumn = columns[activeColumnIdx];
+      const overColumn = columns[overColumnIdx];
+
+      const activeItemIdx = activeColumn.tasks.findIndex(
+        (item) => item.id === active.id
       );
+
+      const overItemIdx = overColumn.tasks.findIndex(
+        (item) => item.id === over.id
+      );
+
+      if (activeColumnIdx === overColumnIdx) {
+        let newColumns = [...columns];
+        newColumns[activeColumnIdx].tasks = arrayMove(
+          newColumns[activeColumnIdx].tasks,
+          activeItemIdx,
+          overItemIdx
+        );
+        setColumns(newColumns);
+      } else {
+        // In different columns
+        let newColumns = [...columns];
+        const [removedItem] = newColumns[activeColumnIdx].tasks.splice(
+          activeItemIdx,
+          1
+        );
+        newColumns[overColumnIdx].tasks.splice(overItemIdx, 0, removedItem);
+        setColumns(newColumns);
+      }
+    }
+
+    if (activeType === "task" && overType === "column") {
+      const activeColumnIdx = findColumnIdx(active.id, activeType);
+      const overColumnIdx = findColumnIdx(over.id, overType);
+
+      if (!checkValidIdx(activeColumnIdx) || !checkValidIdx(overColumnIdx))
+        return;
+
+      const activeColumn = columns[activeColumnIdx];
+      const overColumn = columns[overColumnIdx];
+
+      const activeItemIdx = activeColumn.tasks.findIndex(
+        (item) => item.id === active.id
+      );
+
+      const overItemIdx = overColumn.tasks.length;
+
+      let newColumns = [...columns];
+      const [removedItem] = newColumns[activeColumnIdx].tasks.splice(
+        activeItemIdx,
+        1
+      );
+      newColumns[overColumnIdx].tasks.splice(overItemIdx, 0, removedItem);
+      setColumns(newColumns);
     }
   };
 

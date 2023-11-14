@@ -65,7 +65,13 @@ export function TaskCard({ task }: { task: Task }) {
 
       <CardFooter className="flex justify-between text-sm">
         <span>
-          {task.dueDate ? task.dueDate.toLocaleDateString() : "No Due Date"}
+          {task.dueDate
+            ? task.dueDate.toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })
+            : "No Due Date"}
         </span>
         {task.dueDate && task.dueDate < new Date() && (
           <Badge variant="destructive">Delayed</Badge>
