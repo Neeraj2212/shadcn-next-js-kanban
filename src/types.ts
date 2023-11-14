@@ -3,7 +3,7 @@ export type Id = string;
 export type Column = {
   id: Id;
   title: string;
-  taskIds: Id[];
+  tasks: Task[];
 };
 
 export type Task = {
@@ -11,4 +11,5 @@ export type Task = {
   title: string;
   description: string;
   dueDate?: Date;
+  columnId: Id;
 };

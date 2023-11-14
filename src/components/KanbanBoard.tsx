@@ -15,7 +15,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { Task } from "@/types";
-import { createPortal } from "react-dom";
 import { TaskCard } from "./TaskCard";
 
 export default function KanbanBoard() {

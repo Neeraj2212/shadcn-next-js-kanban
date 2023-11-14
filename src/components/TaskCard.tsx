@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
@@ -6,14 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
 import { Task } from "@/types";
-import { Badge } from "./ui/badge";
-import EditTaskDialog from "./EditTaskDialog";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { TrashIcon } from "@radix-ui/react-icons";
 import { useContext } from "react";
-import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
-import { SortableContext, useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import EditTaskDialog from "./EditTaskDialog";
+import { Badge } from "./ui/badge";
 
 export function TaskCard({ task }: { task: Task }) {
   const { deleteTask } = useContext(KanbanBoardContext);
@@ -55,7 +54,7 @@ export function TaskCard({ task }: { task: Task }) {
             <EditTaskDialog editableTask={task} />
             <div
               className="stroke-rose-500 cursor-pointer"
-              onClick={() => deleteTask(task.id)}
+              onClick={() => deleteTask(task)}
             >
               <TrashIcon className="h-5 w-5" />
             </div>
@@ -63,14 +62,15 @@ export function TaskCard({ task }: { task: Task }) {
         </CardTitle>
         <CardDescription>{task.description}</CardDescription>
       </CardHeader>
-      {task.dueDate && (
-        <CardFooter className="flex justify-between text-sm">
-          <span>{task.dueDate.toLocaleDateString()}</span>
-          {task.dueDate < new Date() && (
-            <Badge variant="destructive">Delayed</Badge>
-          )}
-        </CardFooter>
-      )}
+
+      <CardFooter className="flex justify-between text-sm">
+        <span>
+          {task.dueDate ? task.dueDate.toLocaleDateString() : "No Due Date"}
+        </span>
+        {task.dueDate && task.dueDate < new Date() && (
+          <Badge variant="destructive">Delayed</Badge>
+        )}
+      </CardFooter>
     </Card>
   );
 }

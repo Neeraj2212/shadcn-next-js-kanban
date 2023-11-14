@@ -12,15 +12,12 @@ interface ColumnWrapperProps {
 
 export default function ColumnWrapper(props: ColumnWrapperProps) {
   const { column } = props;
-  const { updateColumnTitle, deleteColumn, immutableColumnIds, tasks } =
-    useContext(KanbanBoardContext);
+  const { updateColumnTitle, deleteColumn } = useContext(KanbanBoardContext);
 
   const [editMode, setEditMode] = useState(false);
   const [columnTitle, setColumnTitle] = useState(column.title);
 
-  const columnTasks = column.taskIds.map((taskId) =>
-    tasks.find((task) => task.id === taskId)
-  );
+  const columnTasks = column.tasks || [];
 
   const { setDroppableNodeRef } = useSortable({
     id: column.id.toString(),
@@ -46,7 +43,7 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
             className="flex justify-center items-center bg-secondary
             px-2 py-1 text-sm rounded-full text-primary"
           >
-            {column.taskIds.length}
+            {columnTasks.length}
           </div>
           {!editMode && columnTitle}
           {editMode && (
@@ -67,19 +64,15 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
             />
           )}
         </div>
-        {immutableColumnIds.length &&
-        !immutableColumnIds.includes(column.id) ? (
-          <button
-            onClick={() => {
-              deleteColumn(column.id);
-            }}
-            className="stroke-gray-500 hover:bg-secondary rounded px-1 py-2"
-          >
-            <TrashIcon className="h-6 w-6" />
-          </button>
-        ) : (
-          <div></div>
-        )}
+
+        <button
+          onClick={() => {
+            deleteColumn(column.id);
+          }}
+          className="stroke-gray-500 hover:bg-secondary rounded px-1 py-2"
+        >
+          <TrashIcon className="h-6 w-6" />
+        </button>
       </div>
 
       {/* Column tasks */}
@@ -87,7 +80,7 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
         className="flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto"
         ref={setDroppableNodeRef}
       >
-        <SortableContext items={column.taskIds}>
+        <SortableContext items={columnTasks.map((t) => t.id)}>
           {columnTasks.map((task) => {
             if (task) return <TaskCard key={task.id} task={task} />;
           })}
