@@ -1,5 +1,10 @@
-import Image from "next/image";
-
-export default function Home() {
-  return <div>Home Page</div>;
+"use client";
+import MultipleBoards from "@/components/MultipleBoards";
+import { MultipleBoardsProvider } from "@/contexts/MultipleBoardsContext";
+export default function HomePage() {
+  return (
+    <MultipleBoardsProvider>
+      <MultipleBoards />
+    </MultipleBoardsProvider>
+  );
 }

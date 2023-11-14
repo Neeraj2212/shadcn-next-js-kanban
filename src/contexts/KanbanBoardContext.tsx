@@ -1,21 +1,28 @@
-import { Column, Task } from "@/types";
-import { arrayMove } from "@dnd-kit/sortable";
-import { createContext, useMemo, useState } from "react";
+import { Board, Column, Task } from "@/types";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { MultipleBoardsContext } from "./MultipleBoardsContext";
 
 type KanbanBoardContextType = {
   columns: Column[];
   setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
+  activeBoard: Board;
   addColumn: () => void;
   deleteColumn: (columnId: string) => void;
   updateColumnTitle: (columnId: string, newTitle: string) => void;
-  addTask: (task: Task) => void;
-  updateTask: (task: Task) => void;
-  deleteTask: (task: Task) => void;
+  addTask: (columnId: string, task: Task) => void;
+  updateTask: (columnId: string, task: Task) => void;
+  deleteTask: (columnId: string, task: Task) => void;
 };
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   columns: [],
+  activeBoard: {
+    id: "",
+    title: "",
+    description: "",
+    columns: [],
+  },
   setColumns: () => {},
   addColumn: () => {},
   deleteColumn: () => {},
@@ -25,9 +32,10 @@ export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   deleteTask: () => {},
 });
 
-export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const KanbanBoardProvider: React.FC<{
+  children: React.ReactNode;
+  boardId: string;
+}> = ({ children, boardId }) => {
   const initialColumns: Column[] = useMemo(
     () => [
       {
@@ -84,7 +92,42 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     []
   );
 
-  const [columns, setColumns] = useState(initialColumns);
+  const { boards, setBoards } = useContext(MultipleBoardsContext);
+  const activeBoard = useMemo(
+    () =>
+      boards.find((board) => board.id === boardId) || {
+        id: "",
+        title: "",
+        description: "",
+        columns: [],
+      },
+    []
+  );
+
+  const [columns, setColumns] = useState(() => {
+    if (activeBoard?.columns.length) {
+      return activeBoard.columns;
+    }
+    return initialColumns;
+  });
+
+  useEffect(() => {
+    return () => {
+      const newBoards = boards.map((board) => {
+        if (board.id === boardId) {
+          return {
+            ...board,
+            columns,
+          };
+        } else {
+          return board;
+        }
+      });
+
+      setBoards(newBoards);
+      localStorage.setItem("boards", JSON.stringify(newBoards));
+    };
+  }, [columns]);
 
   // Column functions
   const addColumn = () => {
@@ -119,11 +162,9 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Task functions
-  const addTask = (task: Task) => {
+  const addTask = (columnId: string, task: Task) => {
     // Get column of task and update tasks
-    const columnIdx = columns.findIndex(
-      (column) => column.id === task.columnId
-    );
+    const columnIdx = columns.findIndex((column) => column.id === columnId);
     const column = columns[columnIdx];
     if (column) {
       column.tasks.push(task);
@@ -131,8 +172,8 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const updateTask = (task: Task) => {
-    const column = columns.find((column) => column.id === task.columnId);
+  const updateTask = (columnId: string, task: Task) => {
+    const column = columns.find((column) => column.id === columnId);
     if (column) {
       const taskIdx = column.tasks.findIndex((t) => t.id === task.id);
       column.tasks[taskIdx] = task;
@@ -140,8 +181,10 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const deleteTask = (task: Task) => {
-    const column = columns.find((column) => column.id === task.columnId);
+  const deleteTask = (columnId: string, task: Task) => {
+    const column = columns.find((column) => column.id === columnId);
+    console.log(task);
+    console.log(column);
     if (column) {
       const taskIdx = column.tasks.findIndex((t) => t.id === task.id);
       column.tasks.splice(taskIdx, 1);
@@ -153,6 +196,7 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     <KanbanBoardContext.Provider
       value={{
         columns,
+        activeBoard,
         setColumns,
         addColumn,
         deleteColumn,

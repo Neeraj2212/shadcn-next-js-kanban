@@ -1,8 +1,8 @@
-import { KanbanBoardContext } from "@/contexts/KanbanBoardContext";
-import { Task } from "@/types";
-import { Pencil1Icon } from "@radix-ui/react-icons";
-import { useContext, useState } from "react";
-import { DatePicker } from "./DatePicker";
+import { MultipleBoardsContext } from "@/contexts/MultipleBoardsContext";
+import { Board } from "@/types";
+import { Pencil1Icon, PlusCircledIcon } from "@radix-ui/react-icons";
+import { useContext, useMemo, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -16,41 +16,32 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
-export default function EditTaskDialog({
-  editableTask,
-  columnId,
+export default function EditBoardDialog({
+  editableBoard,
 }: {
-  editableTask: Task;
-  columnId: string;
+  editableBoard: Board;
 }) {
-  const [task, setTask] = useState<Task>(editableTask);
+  const [board, setBoard] = useState<Board>(editableBoard);
   const [open, setOpen] = useState(false);
-  const { updateTask } = useContext(KanbanBoardContext);
+  const { updateBoard } = useContext(MultipleBoardsContext);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setTask({
-      ...task,
+    setBoard({
+      ...board,
       [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleDueDateChange = (date: Date | undefined) => {
-    setTask({
-      ...task,
-      dueDate: date,
     });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateTask(columnId, task);
+    updateBoard(board);
     setOpen(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => setOpen((prev) => !prev)}>
+    <Dialog open={open} onOpenChange={() => setOpen((p) => !p)}>
       <DialogTrigger asChild>
         <Button className="p-0 pl-2 shadow-none stroke-gray-500 bg-transparent hover:bg-transparent h-auto">
           <Pencil1Icon className="h-5 w-5" />
@@ -58,7 +49,7 @@ export default function EditTaskDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Task</DialogTitle>
+          <DialogTitle>Edit Board</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
@@ -69,7 +60,7 @@ export default function EditTaskDialog({
               <Input
                 id="title"
                 name="title"
-                value={task.title}
+                value={board.title}
                 onChange={handleChange}
                 required
                 className="col-span-3"
@@ -82,20 +73,10 @@ export default function EditTaskDialog({
               <Textarea
                 id="description"
                 name="description"
-                value={task.description}
+                value={board.description}
                 className="col-span-3 "
                 required
                 onChange={handleChange}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="dueDate" className="text-right">
-                Due Date
-              </Label>
-              <DatePicker
-                className="col-span-3"
-                date={task.dueDate}
-                setDate={handleDueDateChange}
               />
             </div>
           </div>

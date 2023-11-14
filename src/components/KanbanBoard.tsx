@@ -183,7 +183,7 @@ export default function KanbanBoard() {
           </Button>
         </div>
         <DragOverlay>
-          {activeTask && <TaskCard task={activeTask} />}
+          {activeTask && <TaskCard task={activeTask} columnId="" />}
           {acitveCol && <ColumnWrapper column={acitveCol} />}
         </DragOverlay>
       </DndContext>

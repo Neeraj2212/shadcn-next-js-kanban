@@ -15,7 +15,7 @@ import EditTaskDialog from "./EditTaskDialog";
 import { Badge } from "./ui/badge";
 import clsx from "clsx";
 
-export function TaskCard({ task }: { task: Task }) {
+export function TaskCard({ task, columnId }: { task: Task; columnId: string }) {
   const { deleteTask } = useContext(KanbanBoardContext);
 
   const {
@@ -55,10 +55,10 @@ export function TaskCard({ task }: { task: Task }) {
         <CardTitle className="flex justify-between">
           {task.title}{" "}
           <div className="flex gap-1">
-            <EditTaskDialog editableTask={task} />
+            <EditTaskDialog columnId={columnId} editableTask={task} />
             <div
               className="stroke-rose-500 cursor-pointer"
-              onClick={() => deleteTask(task)}
+              onClick={() => deleteTask(columnId, task)}
             >
               <TrashIcon className="h-5 w-5" />
             </div>

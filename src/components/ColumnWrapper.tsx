@@ -107,7 +107,10 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
       >
         <SortableContext items={columnTasks.map((t) => t.id)}>
           {columnTasks.map((task) => {
-            if (task) return <TaskCard key={task.id} task={task} />;
+            if (task)
+              return (
+                <TaskCard key={task.id} task={task} columnId={column.id} />
+              );
           })}
         </SortableContext>
       </div>

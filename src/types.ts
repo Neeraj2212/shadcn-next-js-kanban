@@ -11,5 +11,11 @@ export type Task = {
   title: string;
   description: string;
   dueDate?: Date;
-  columnId: Id;
+};
+
+export type Board = {
+  id: Id;
+  columns: Column[];
+  title: string;
+  description: string;
 };
