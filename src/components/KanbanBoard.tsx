@@ -15,13 +15,14 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Task } from "@/types";
+import { Column, Task } from "@/types";
 import { TaskCard } from "./TaskCard";
-import { arrayMove } from "@dnd-kit/sortable";
+import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 
 export default function KanbanBoard() {
   const { columns, addColumn, setColumns } = useContext(KanbanBoardContext);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [acitveCol, setActiveCol] = useState<Column | null>(null);
   const draggableTypes = useMemo(() => ["column", "task"], []);
 
   const sensors = useSensors(
@@ -46,12 +47,39 @@ export default function KanbanBoard() {
   const onDragStart = (event: DragStartEvent) => {
     const data = event.active.data.current;
     if (!data || !draggableTypes.includes(data.type)) return;
-    const { task } = data;
-    setActiveTask(task);
+    const activeType = data.type;
+    if (activeType === "task") {
+      const { task } = data;
+      setActiveTask(task);
+    }
+    if (activeType === "column") {
+      const { column } = data;
+      setActiveCol(column);
+    }
   };
 
   const onDragEnd = (event: DragEndEvent) => {
     setActiveTask(null);
+    setActiveCol(null);
+
+    const { active, over } = event;
+    if (!active || !over) return;
+    if (active.id === over.id) return;
+
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
+
+    if (activeType === "column" && overType === "column") {
+      const activeColumnIdx = findColumnIdx(active.id, activeType);
+      const overColumnIdx = findColumnIdx(over.id, overType);
+
+      if (!checkValidIdx(activeColumnIdx) || !checkValidIdx(overColumnIdx))
+        return;
+
+      let newColumns = [...columns];
+      newColumns = arrayMove(newColumns, activeColumnIdx, overColumnIdx);
+      setColumns(newColumns);
+    }
   };
 
   const onDragOver = (event: DragOverEvent) => {
@@ -137,9 +165,11 @@ export default function KanbanBoard() {
       >
         <div className="flex gap-4">
           <div className="flex gap-4">
-            {columns.map((column) => {
-              return <ColumnWrapper key={column.id} column={column} />;
-            })}
+            <SortableContext items={columns.map((c) => c.id)}>
+              {columns.map((column) => {
+                return <ColumnWrapper key={column.id} column={column} />;
+              })}
+            </SortableContext>
           </div>
           <Button
             className="h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg
@@ -154,6 +184,7 @@ export default function KanbanBoard() {
         </div>
         <DragOverlay>
           {activeTask && <TaskCard task={activeTask} />}
+          {acitveCol && <ColumnWrapper column={acitveCol} />}
         </DragOverlay>
       </DndContext>
     </div>

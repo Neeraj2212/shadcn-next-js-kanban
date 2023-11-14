@@ -5,6 +5,8 @@ import { TrashIcon } from "@radix-ui/react-icons";
 import { useContext, useState } from "react";
 import AddTaskDialog from "./AddTaskDialog";
 import { TaskCard } from "./TaskCard";
+import { CSS } from "@dnd-kit/utilities";
+import clsx from "clsx";
 
 interface ColumnWrapperProps {
   column: Column;
@@ -19,7 +21,15 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
 
   const columnTasks = column.tasks || [];
 
-  const { setDroppableNodeRef } = useSortable({
+  const {
+    setNodeRef,
+    attributes,
+    listeners,
+    setDroppableNodeRef,
+    isDragging,
+    transform,
+    transition,
+  } = useSortable({
     id: column.id.toString(),
     disabled: editMode,
     data: {
@@ -28,15 +38,30 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
     },
   });
 
+  const style = {
+    transition,
+    transform: CSS.Transform.toString(transform),
+  };
+
+  const draggingClasses = isDragging ? "brightness-50 cursor-grabbing" : "";
+
   return (
-    <div className="bg-secondary rounded-md flex flex-col max-h-[600px] h-[600px] w-[350px]">
+    <div
+      className={clsx(
+        "bg-secondary rounded-md flex flex-col max-h-[600px] h-[600px] w-[350px] cursor-grab active:cursor-grabbing",
+        draggingClasses
+      )}
+      ref={setNodeRef}
+      style={style}
+      {...(isDragging ? {} : attributes)}
+      {...(isDragging ? {} : listeners)}
+    >
       {/* Column title */}
       <div
         onClick={() => {
           setEditMode(true);
         }}
-        className="bg-primary text-md h-[60px] rounded-md 
-        rounded-b-none p-3 font-bold flex items-center justify-between"
+        className="bg-primary text-md h-[60px] rounded-md rounded-b-none p-3 font-bold flex items-center justify-between"
       >
         <div className="flex gap-2 text-secondary">
           <div

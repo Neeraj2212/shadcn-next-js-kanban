@@ -12,12 +12,6 @@ type KanbanBoardContextType = {
   addTask: (task: Task) => void;
   updateTask: (task: Task) => void;
   deleteTask: (task: Task) => void;
-  moveOverAnotherTask: (
-    activeColumnId: string,
-    overColumnId: string,
-    activeTaskId: string,
-    overTaskId: string
-  ) => void;
 };
 
 export const KanbanBoardContext = createContext<KanbanBoardContextType>({
@@ -29,7 +23,6 @@ export const KanbanBoardContext = createContext<KanbanBoardContextType>({
   addTask: () => {},
   updateTask: () => {},
   deleteTask: () => {},
-  moveOverAnotherTask: () => {},
 });
 
 export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -156,26 +149,6 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const findValueOfItem = (id: string | undefined, type: string) => {
-    if (type === "column") {
-      return columns.find((column) => column.id === id);
-    } else if (type === "task") {
-      return columns.find((column) =>
-        column.tasks.find((task) => task.id === id)
-      );
-    }
-  };
-
-  // Move task functions
-  const moveOverAnotherTask = (
-    activeColumnId: string,
-    overColumnId: string,
-    activeTaskId: string,
-    overTaskId: string
-  ) => {
-    // move tasks within same column
-  };
-
   return (
     <KanbanBoardContext.Provider
       value={{
@@ -187,7 +160,6 @@ export const KanbanBoardProvider: React.FC<{ children: React.ReactNode }> = ({
         addTask,
         updateTask,
         deleteTask,
-        moveOverAnotherTask,
       }}
     >
       {children}

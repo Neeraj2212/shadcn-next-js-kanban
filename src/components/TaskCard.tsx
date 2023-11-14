@@ -13,6 +13,7 @@ import { TrashIcon } from "@radix-ui/react-icons";
 import { useContext } from "react";
 import EditTaskDialog from "./EditTaskDialog";
 import { Badge } from "./ui/badge";
+import clsx from "clsx";
 
 export function TaskCard({ task }: { task: Task }) {
   const { deleteTask } = useContext(KanbanBoardContext);
@@ -41,7 +42,10 @@ export function TaskCard({ task }: { task: Task }) {
 
   return (
     <Card
-      className={`w-full cursor-grab active:cursor-grabbing ${draggingClasses}`}
+      className={clsx(
+        `w-full cursor-grab active:cursor-grabbing`,
+        draggingClasses
+      )}
       ref={setNodeRef}
       style={style}
       {...(isDragging ? {} : attributes)}
