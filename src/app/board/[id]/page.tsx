@@ -1,5 +1,6 @@
 "use client";
 import KanbanBoard from "@/components/KanbanBoard";
+import NavBar from "@/components/NavBar";
 import { KanbanBoardProvider } from "@/contexts/KanbanBoardContext";
 import dynamic from "next/dynamic";
 
@@ -15,7 +16,10 @@ export default function Board({ params: { id } }: { params: { id: string } }) {
   return (
     <MultipleBoardsProvider>
       <KanbanBoardProvider boardId={id}>
-        <KanbanBoard />
+        <div>
+          <NavBar />
+          <KanbanBoard />
+        </div>
       </KanbanBoardProvider>
     </MultipleBoardsProvider>
   );

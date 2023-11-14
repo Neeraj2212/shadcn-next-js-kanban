@@ -11,6 +11,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   UniqueIdentifier,
   useSensor,
   useSensors,
@@ -20,7 +21,8 @@ import { TaskCard } from "./TaskCard";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
 
 export default function KanbanBoard() {
-  const { columns, addColumn, setColumns } = useContext(KanbanBoardContext);
+  const { columns, addColumn, setColumns, activeBoard } =
+    useContext(KanbanBoardContext);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [acitveCol, setActiveCol] = useState<Column | null>(null);
   const draggableTypes = useMemo(() => ["column", "task"], []);
@@ -155,38 +157,46 @@ export default function KanbanBoard() {
   };
 
   return (
-    <div className="flex w-full px-[40px] py-10 ">
-      <DndContext
-        id="kanban-board"
-        sensors={sensors}
-        onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
-        onDragOver={onDragOver}
-      >
-        <div className="flex gap-4">
-          <div className="flex gap-4">
-            <SortableContext items={columns.map((c) => c.id)}>
-              {columns.map((column) => {
-                return <ColumnWrapper key={column.id} column={column} />;
-              })}
-            </SortableContext>
+    <div className="px-[40px] py-10 flex flex-col gap-y-6">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+        {activeBoard ? activeBoard.title : "Kanban Board"}
+      </h1>
+      <h2 className="text-xl text-gray-500">
+        {activeBoard ? activeBoard.description : "No description"}
+      </h2>
+      <div className="flex w-full pb-5 overflow-y-auto">
+        <DndContext
+          id="kanban-board"
+          sensors={sensors}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          onDragOver={onDragOver}
+        >
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <SortableContext items={columns.map((c) => c.id)}>
+                {columns.map((column) => {
+                  return <ColumnWrapper key={column.id} column={column} />;
+                })}
+              </SortableContext>
+            </div>
+            <Button
+              className="h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg
+            text-md font-bold p-4 flex gap-2"
+              onClick={() => {
+                addColumn();
+              }}
+            >
+              <PlusCircledIcon className="h-6 w-6" />
+              Add Column
+            </Button>
           </div>
-          <Button
-            className="h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg
-                text-md font-bold p-4 flex gap-2"
-            onClick={() => {
-              addColumn();
-            }}
-          >
-            <PlusCircledIcon className="h-6 w-6" />
-            Add Column
-          </Button>
-        </div>
-        <DragOverlay>
-          {activeTask && <TaskCard task={activeTask} columnId="" />}
-          {acitveCol && <ColumnWrapper column={acitveCol} />}
-        </DragOverlay>
-      </DndContext>
+          <DragOverlay>
+            {activeTask && <TaskCard task={activeTask} columnId="" />}
+            {acitveCol && <ColumnWrapper column={acitveCol} />}
+          </DragOverlay>
+        </DndContext>
+      </div>
     </div>
   );
 }
