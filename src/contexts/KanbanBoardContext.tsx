@@ -6,7 +6,7 @@ import { MultipleBoardsContext } from "./MultipleBoardsContext";
 type KanbanBoardContextType = {
   columns: Column[];
   setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
-  activeBoard: Board;
+  activeBoard: Board | undefined;
   addColumn: () => void;
   deleteColumn: (columnId: string) => void;
   updateColumnTitle: (columnId: string, newTitle: string) => void;
@@ -93,16 +93,7 @@ export const KanbanBoardProvider: React.FC<{
   );
 
   const { boards, setBoards } = useContext(MultipleBoardsContext);
-  const activeBoard = useMemo(
-    () =>
-      boards.find((board) => board.id === boardId) || {
-        id: "",
-        title: "",
-        description: "",
-        columns: [],
-      },
-    []
-  );
+  const activeBoard = boards.find((board) => board.id === boardId);
 
   const [columns, setColumns] = useState(() => {
     if (activeBoard?.columns.length) {
@@ -112,21 +103,19 @@ export const KanbanBoardProvider: React.FC<{
   });
 
   useEffect(() => {
-    return () => {
-      const newBoards = boards.map((board) => {
-        if (board.id === boardId) {
-          return {
-            ...board,
-            columns,
-          };
-        } else {
-          return board;
-        }
-      });
+    const newBoards = boards.map((board) => {
+      if (board.id === boardId) {
+        return {
+          ...board,
+          columns,
+        };
+      } else {
+        return board;
+      }
+    });
 
-      setBoards(newBoards);
-      localStorage.setItem("boards", JSON.stringify(newBoards));
-    };
+    setBoards(newBoards);
+    localStorage.setItem("boards", JSON.stringify(newBoards));
   }, [columns]);
 
   // Column functions

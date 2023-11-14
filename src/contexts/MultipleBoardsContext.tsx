@@ -1,5 +1,5 @@
 import { Board } from "@/types";
-import { createContext, useMemo, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 
 type MultipleBoardsContextType = {
   boards: Board[];
@@ -37,7 +37,18 @@ export const MultipleBoardsProvider: React.FC<{
     ],
     []
   );
-  const [boards, setBoards] = useState<Board[]>(initialBoards);
+
+  const [boards, setBoards] = useState<Board[]>(() => {
+    const boards = localStorage.getItem("boards");
+    if (boards) {
+      return JSON.parse(boards);
+    }
+    return initialBoards;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("boards", JSON.stringify(boards));
+  }, [boards]);
 
   const addBoard = (board: Board) => {
     setBoards([...boards, board]);

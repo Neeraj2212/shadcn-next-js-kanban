@@ -10,24 +10,22 @@ export default function BoardCard({ board }: { board: Board }) {
   const { deleteBoard } = useContext(MultipleBoardsContext);
 
   return (
-    <Link href={`/board/${board.id}`}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex justify-between">
-            {board.title}{" "}
-            <div className="flex gap-1">
-              <EditBoardDialog editableBoard={board} />
-              <div
-                className="stroke-rose-500 cursor-pointer"
-                onClick={() => deleteBoard(board.id.toString())}
-              >
-                <TrashIcon className="h-5 w-5" />
-              </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex justify-between">
+          <Link href={`/board/${board.id}`}>{board.title} </Link>
+          <div className="flex gap-1">
+            <EditBoardDialog editableBoard={board} />
+            <div
+              className="stroke-rose-500 cursor-pointer"
+              onClick={() => deleteBoard(board.id.toString())}
+            >
+              <TrashIcon className="h-5 w-5" />
             </div>
-          </CardTitle>
-          <CardDescription>{board.description}</CardDescription>
-        </CardHeader>
-      </Card>
-    </Link>
+          </div>
+        </CardTitle>
+        <CardDescription>{board.description}</CardDescription>
+      </CardHeader>
+    </Card>
   );
 }

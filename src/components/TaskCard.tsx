@@ -17,6 +17,7 @@ import clsx from "clsx";
 
 export function TaskCard({ task, columnId }: { task: Task; columnId: string }) {
   const { deleteTask } = useContext(KanbanBoardContext);
+  const dueDate = new Date(task.dueDate || "");
 
   const {
     setNodeRef,
@@ -69,15 +70,15 @@ export function TaskCard({ task, columnId }: { task: Task; columnId: string }) {
 
       <CardFooter className="flex justify-between text-sm">
         <span>
-          {task.dueDate
-            ? task.dueDate.toLocaleDateString("en-GB", {
+          {dueDate
+            ? dueDate?.toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",
               })
             : "No Due Date"}
         </span>
-        {task.dueDate && task.dueDate < new Date() && (
+        {dueDate && dueDate < new Date() && (
           <Badge variant="destructive">Delayed</Badge>
         )}
       </CardFooter>
