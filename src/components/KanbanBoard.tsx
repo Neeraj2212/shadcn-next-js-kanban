@@ -28,7 +28,10 @@ export default function KanbanBoard() {
   const draggableTypes = useMemo(() => ["column", "task"], []);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, distance: 5 },
+    })
   );
 
   const findColumnIdx = (id: UniqueIdentifier | undefined, type: string) => {
@@ -157,7 +160,7 @@ export default function KanbanBoard() {
   };
 
   return (
-    <div className="px-[40px] py-10 flex flex-col gap-y-6">
+    <div className="px-[30px] sm:px-[40px] py-10 flex flex-col gap-y-6">
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         {activeBoard ? activeBoard.title : "Kanban Board"}
       </h1>
@@ -181,7 +184,7 @@ export default function KanbanBoard() {
               </SortableContext>
             </div>
             <Button
-              className="h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg
+              className="h-[60px] w-[300px] sm:w-[350px] cursor-pointer rounded-lg
             text-md font-bold p-4 flex gap-2"
               onClick={() => {
                 addColumn();

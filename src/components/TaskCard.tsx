@@ -44,7 +44,7 @@ export function TaskCard({ task, columnId }: { task: Task; columnId: string }) {
   return (
     <Card
       className={clsx(
-        `w-full cursor-grab active:cursor-grabbing`,
+        `w-full cursor-grab active:cursor-grabbing touch-none`,
         draggingClasses
       )}
       ref={setNodeRef}

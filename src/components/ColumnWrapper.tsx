@@ -48,7 +48,7 @@ export default function ColumnWrapper(props: ColumnWrapperProps) {
   return (
     <div
       className={clsx(
-        "bg-secondary rounded-md flex flex-col max-h-[600px] h-[600px] w-[350px] cursor-grab active:cursor-grabbing",
+        "bg-secondary rounded-md flex flex-col touch-none max-h-[600px] h-[600px] w-[300px] sm:w-[350px] cursor-grab active:cursor-grabbing",
         draggingClasses
       )}
       ref={setNodeRef}
